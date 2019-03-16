@@ -2,4 +2,6 @@ uname -r
 pwd
 ls /input
 ls /output
-touch /output/new_file
+
+cd pyutils/mask-faster-rcnn
+./experiments/scripts/train_mask_rcnn_notime.sh 0 refcoco res101 notime
