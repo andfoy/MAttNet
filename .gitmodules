@@ -6,4 +6,4 @@
 	url = https://github.com/lichengunc/refer
 [submodule "pyutils/refer-parser2"]
 	path = pyutils/refer-parser2
-	url = https://github.com/lichengunc/refer-parser2
+	url = https://github.com/andfoy/refer-parser2
