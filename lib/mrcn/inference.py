@@ -160,6 +160,7 @@ class Inference:
     # extract head (1, 1024, im_height*scale/16.0, im_width*scale/16.0) in Variable cuda float
     # and im_info [[ih, iw, scale]] in float32 ndarray
     im = cv2.imread(img_path)
+    print(img_path)
     blobs, im_scales = self._get_blobs(im)
     head_feat = self.net.extract_head(blobs['data'])
     im_info = np.array([[blobs['data'].shape[1], blobs['data'].shape[2], im_scales[0]]])
