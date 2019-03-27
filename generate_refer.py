@@ -43,10 +43,10 @@ def binary_mask_to_polygon(binary_mask, tolerance=0):
 
 
 gt_robo = json.load(open(
-    'data_endovis2017_instances_cropped/group1/'
-    'RobotSeg2017_inst_class_group1.json', 'r'))
+    'data_endovis2017_instances_cropped/group2/'
+    'RobotSeg2017_inst_class_group2.json', 'r'))
 
-out_robo = torch.load('cand_dataset_group1_train.pth')
+out_robo = torch.load('cand_dataset_group2_train.pth')
 
 categories = {x['id']: x['name'].lower() for x in gt_robo['categories']}
 img_anns = {x['id']: [] for x in gt_robo['images']}
@@ -100,9 +100,9 @@ for img in tqdm.tqdm(gt_robo['images']):
         instance_id += 1
 
 gt_robo = json.load(open(
-    'data_endovis2017_instances_cropped/group2/'
-    'RobotSeg2017_inst_class_group2.json', 'r'))
-out_robo = torch.load('cand_dataset_group2.pth')
+    'data_endovis2017_instances_cropped/group1/'
+    'RobotSeg2017_inst_class_group1.json', 'r'))
+out_robo = torch.load('cand_dataset_group1.pth')
 
 img_anns = {x['id']: [] for x in gt_robo['images']}
 for ann in gt_robo['annotations']:
