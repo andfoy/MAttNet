@@ -193,7 +193,7 @@ def build_att_vocab(refer, params, att_types=['r1', 'r2', 'r7']):
   sentToRef = refer.sentToRef
   ref_to_att_wds = {}
   forbidden = forbidden_noun + forbidden_att + forbidden_verb \
-              + refer.Cats.values() # we also forbid category name here
+              + list(refer.Cats.values()) # we also forbid category name here
   for sent in sents:
     sent_id = sent['sent_id']
     atts = sent['atts']
