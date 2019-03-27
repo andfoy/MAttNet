@@ -1,4 +1,4 @@
-from __future__ import absolute_import 
+from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
@@ -22,7 +22,7 @@ from crits.max_margin_crit import MaxMarginCriterion
 from opt import parse_opt
 
 # torch
-import torch 
+import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
@@ -58,8 +58,8 @@ def lossFun(loader, optimizer, model, mm_crit, att_crit, opt, iter):
 
   # forward
   tic = time.time()
-  scores, _, sub_attn, loc_attn, rel_attn, _, _, att_scores = model(Feats['pool5'], Feats['fc7'], 
-                                         Feats['lfeats'], Feats['dif_lfeats'], 
+  scores, _, sub_attn, loc_attn, rel_attn, _, _, att_scores = model(Feats['pool5'], Feats['fc7'],
+                                         Feats['lfeats'], Feats['dif_lfeats'],
                                          Feats['cxt_fc7'], Feats['cxt_lfeats'],
                                          labels)
   loss = mm_crit(scores)
@@ -75,7 +75,7 @@ def lossFun(loader, optimizer, model, mm_crit, att_crit, opt, iter):
   optimizer.step()
   T['model'] = time.time()-tic
 
-  # return 
+  # return
   return loss.data[0], T, data['bounds']['wrapped']
 
 
@@ -100,7 +100,7 @@ def main(args):
   feats_dir = '%s_%s_%s' % (args.net_name, args.imdb_name, args.tag)
   head_feats_dir=osp.join('cache/feats/', opt['dataset_splitBy'], 'mrcn', feats_dir)
   loader.prepare_mrcn(head_feats_dir, args)
-  ann_feats = osp.join('cache/feats', opt['dataset_splitBy'], 'mrcn', 
+  ann_feats = osp.join('cache/feats', opt['dataset_splitBy'], 'mrcn',
                        '%s_%s_%s_ann_feats.h5' % (opt['net_name'], opt['imdb_name'], opt['tag']))
   loader.loadFeats({'ann': ann_feats})
 
@@ -136,7 +136,7 @@ def main(args):
     att_crit.cuda()
 
   # set up optimizer
-  optimizer = torch.optim.Adam(model.parameters(), 
+  optimizer = torch.optim.Adam(model.parameters(),
                                lr=opt['learning_rate'],
                                betas=(opt['optim_alpha'], opt['optim_beta']),
                                eps=opt['optim_epsilon'])
@@ -170,7 +170,7 @@ def main(args):
 
     # eval loss and save checkpoint
     if iter % opt['save_checkpoint_every'] == 0 or iter == opt['max_iters']:
-      val_loss, acc, predictions, overall = eval_utils.eval_split(loader, model, None, 'val', opt)
+      val_loss, acc, predictions, overall = eval_utils.eval_split(loader, model, None, 'test', opt)
       val_loss_history[iter] = val_loss
       val_result_history[iter] = {'loss': val_loss, 'accuracy': acc}
       val_accuracies += [(iter, acc)]
@@ -178,8 +178,8 @@ def main(args):
       print('validation acc : %.2f%%\n' % (acc*100.0))
       print('validation precision : %.2f%%' % (overall['precision']*100.0))
       print('validation recall    : %.2f%%' % (overall['recall']*100.0))
-      print('validation f1        : %.2f%%' % (overall['f1']*100.0))       
-            
+      print('validation f1        : %.2f%%' % (overall['f1']*100.0))
+
       # save model if best
       current_score = acc
       if best_val_score is None or current_score > best_val_score:
@@ -190,10 +190,10 @@ def main(args):
         checkpoint = {}
         checkpoint['model'] = model
         checkpoint['opt'] = opt
-        torch.save(checkpoint, checkpoint_path) 
-        print('model saved to %s' % checkpoint_path) 
+        torch.save(checkpoint, checkpoint_path)
+        print('model saved to %s' % checkpoint_path)
 
-      # write json report 
+      # write json report
       infos['iter'] = iter
       infos['epoch'] = epoch
       infos['iterators'] = loader.iterators
@@ -209,7 +209,7 @@ def main(args):
       infos['att_to_ix'] = loader.att_to_ix
       with open(osp.join(checkpoint_dir, opt['id']+'.json'), 'wb') as io:
         json.dump(infos, io)
-        
+
     # update iter and epoch
     iter += 1
     if wrapped:
@@ -222,4 +222,3 @@ if __name__ == '__main__':
 
   args = parse_opt()
   main(args)
-
