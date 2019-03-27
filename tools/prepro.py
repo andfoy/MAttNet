@@ -69,7 +69,7 @@ def build_vocab(refer, params):
   vocab = good_words
 
   # add category words
-  category_names = refer.Cats.values() + ['__background__']
+  category_names = list(refer.Cats.values()) + ['__background__']
   for cat_name in category_names:
     for wd in cat_name.split():
       if wd not in word2count or word2count[wd] <= count_thr:
