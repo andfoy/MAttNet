@@ -172,8 +172,8 @@ def main(args):
     if iter % opt['save_checkpoint_every'] == 0 or iter == opt['max_iters']:
       val_loss, acc, predictions, overall = eval_utils.eval_split(loader, model, None, 'test', opt)
       val_loss_history[iter] = val_loss.item()
-      val_result_history[iter] = {'loss': val_loss.item(), 'accuracy': acc.item()}
-      val_accuracies += [(iter, acc.item())]
+      val_result_history[iter] = {'loss': val_loss.item(), 'accuracy': acc}
+      val_accuracies += [(iter, acc)]
       print('validation loss: %.2f' % val_loss)
       print('validation acc : %.2f%%\n' % (acc*100.0))
       print('validation precision : %.2f%%' % (overall['precision']*100.0))
