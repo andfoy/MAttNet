@@ -112,9 +112,10 @@ for ann in gt_robo['annotations']:
 
 for img in tqdm.tqdm(gt_robo['images']):
     img_id = img['id']
-    robo_coco['images'].append(img)
     out_instances = list(out_robo[img_id - 1].values())
     img_id += len(robo_coco['images'])
+    img['id'] = img_id
+    robo_coco['images'].append(img)
     for instance in out_instances:
         rle = instance['mask']
         instance['bbox'] = instance['bbox'][:, :-1]
