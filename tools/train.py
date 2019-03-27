@@ -26,6 +26,14 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
+
+class TensorEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, torch.tensor):
+            return obj.item()
+        return super(TensorEncoder, self).default(obj)
+
+
 # train one iter
 def lossFun(loader, optimizer, model, mm_crit, att_crit, opt, iter):
   # set mode
@@ -207,9 +215,9 @@ def main(args):
       infos['val_result_history'] = val_result_history
       infos['word_to_ix'] = loader.word_to_ix
       infos['att_to_ix'] = loader.att_to_ix
-      print(infos)
+
       with open(osp.join(checkpoint_dir, opt['id']+'.json'), 'w') as io:
-        json.dump(infos, io)
+        json.dump(infos, io, cls=TensorEncoder)
 
     # update iter and epoch
     iter += 1
