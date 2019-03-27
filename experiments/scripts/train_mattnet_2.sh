@@ -4,7 +4,7 @@ GPU_ID=$1
 DATASET=$2
 SPLITBY=$3
 
-IMDB="endovis_2017_group1"
+IMDB="endovis_2017_group2"
 ITERS=27600
 TAG="notime"
 NET="res101"
