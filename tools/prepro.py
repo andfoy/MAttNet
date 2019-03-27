@@ -30,17 +30,18 @@ import operator
 import h5py
 import numpy as np
 from scipy.misc import imread, imresize
+from referit import REFER
 
-forbidden_att = ['none', 'other', 'sorry', 'pic', 'extreme', 'rightest', 'tie', 'leftest', 'hard', 'only', 
-'darkest', 'foremost', 'topmost', 'leftish','utmost', 'lemon', 'good', 'hot', 'more', 'least', 'less', 
-'cant', 'only', 'opposite', 'upright', 'lightest', 'single', 'touching', 'bad', 'main', 'remote', '3pm', 
+forbidden_att = ['none', 'other', 'sorry', 'pic', 'extreme', 'rightest', 'tie', 'leftest', 'hard', 'only',
+'darkest', 'foremost', 'topmost', 'leftish','utmost', 'lemon', 'good', 'hot', 'more', 'least', 'less',
+'cant', 'only', 'opposite', 'upright', 'lightest', 'single', 'touching', 'bad', 'main', 'remote', '3pm',
 'same', 'bottom', 'middle']
-forbidden_verb = ['none', 'look', 'be', 'see', 'have', 'head', 'show', 'strip', 'get', 'turn', 'wear', 
-'reach', 'get', 'cross', 'turn', 'point', 'take', 'color', 'handle', 'cover', 'blur', 'close', 'say', 'go', 
-'dude', 'do', 'let', 'think', 'top', 'head', 'take', 'that', 'say', 'carry', 'man', 'come', 'check', 'stuff', 
-'pattern', 'use', 'light', 'follow', 'rest', 'watch', 'make', 'stop', 'arm', 'try', 'want', 'count', 'lead', 
+forbidden_verb = ['none', 'look', 'be', 'see', 'have', 'head', 'show', 'strip', 'get', 'turn', 'wear',
+'reach', 'get', 'cross', 'turn', 'point', 'take', 'color', 'handle', 'cover', 'blur', 'close', 'say', 'go',
+'dude', 'do', 'let', 'think', 'top', 'head', 'take', 'that', 'say', 'carry', 'man', 'come', 'check', 'stuff',
+'pattern', 'use', 'light', 'follow', 'rest', 'watch', 'make', 'stop', 'arm', 'try', 'want', 'count', 'lead',
 'know', 'mean', 'lap', 'moniter', 'dot', 'set', 'cant', 'serve', 'surround', 'isnt', 'give', 'click']
-forbidden_noun = ['none', 'picture', 'pic', 'screen', 'background', 'camera', 'edge', 'standing', 'thing', 
+forbidden_noun = ['none', 'picture', 'pic', 'screen', 'background', 'camera', 'edge', 'standing', 'thing',
 'holding', 'end', 'view', 'bottom', 'center', 'row', 'piece']
 
 def build_vocab(refer, params):
@@ -123,7 +124,7 @@ def encode_captions(sentences, wtoi, params):
 
 def check_encoded_labels(sentences, labels, itow):
   for sent in sentences:
-    # gd truth 
+    # gd truth
     print('gd-truth: %s' % (' '.join(sent['tokens'])))
     # deocde labels
     h5_id = sent['h5_id']
@@ -177,17 +178,17 @@ def prepare_json(refer, sentToFinal, ref_to_att_wds, params):
       sent['dataset_splitBy'] = refer.Sents[sent_id]['dataset_splitBy']
     sentences += [sent]
     # sentences += [{'sent_id': sent_id, 'tokens': tokens, 'h5_id': h5_id}]
-    h5_id = h5_id + 1  
+    h5_id = h5_id + 1
   print('There are in all %d sentences to written into hdf5 file.' % h5_id)
 
   return refs, images, anns, sentences
 
 def build_att_vocab(refer, params, att_types=['r1', 'r2', 'r7']):
   """
-  Load sents = [{tokens, atts, sent_id, parse, raw, sent left}] 
+  Load sents = [{tokens, atts, sent_id, parse, raw, sent left}]
   from pyutils/refer-parser2/cache/parsed_atts/dataset_splitBy/sents.json
   """
-  sents = json.load(open(osp.join('pyutils/refer-parser2/cache/parsed_atts', 
+  sents = json.load(open(osp.join('pyutils/refer-parser2/cache/parsed_atts',
                                   params['dataset']+'_'+params['splitBy'], 'sents.json')))
   sentToRef = refer.sentToRef
   ref_to_att_wds = {}
@@ -244,35 +245,35 @@ def main(params):
     os.makedirs(osp.join('cache/prepro', dataset+'_'+splitBy))
 
   # load refer
-  sys.path.insert(0, 'pyutils/refer')
-  from refer import REFER
+  # sys.path.insert(0, 'pyutils/refer')
+  # from refer import REFER
   refer = REFER(data_root, dataset, splitBy)
 
   # create vocab
   vocab, sentToFinal = build_vocab(refer, params)
-  itow = {i: w for i, w in enumerate(vocab)} 
-  wtoi = {w: i for i, w in enumerate(vocab)} 
-  
+  itow = {i: w for i, w in enumerate(vocab)}
+  wtoi = {w: i for i, w in enumerate(vocab)}
+
   # check sentence length
   check_sentLength(sentToFinal)
 
   # create attribute vocab
-  att2cnt, ref_to_att_wds = build_att_vocab(refer, params, ['r1','r2','r7']) 
+  att2cnt, ref_to_att_wds = build_att_vocab(refer, params, ['r1','r2','r7'])
   itoa = {i: a for i, a in enumerate(att2cnt.keys())}
   atoi = {a: i for i, a in enumerate(att2cnt.keys())}
 
   # prepare refs, images, anns, sentences
   # and write json
   refs, images, anns, sentences = prepare_json(refer, sentToFinal, ref_to_att_wds, params)
-  json.dump({'refs': refs, 
-             'images': images, 
-             'anns': anns, 
-             'sentences': sentences, 
+  json.dump({'refs': refs,
+             'images': images,
+             'anns': anns,
+             'sentences': sentences,
              'word_to_ix': wtoi,
              'att_to_ix' : atoi,
              'att_to_cnt': att2cnt,
              'cat_to_ix': {cat_name: cat_id for cat_id, cat_name in refer.Cats.items()},
-             'label_length': params['max_length'],}, 
+             'label_length': params['max_length'],},
              open(osp.join('cache/prepro', dataset+'_'+splitBy, params['output_json']), 'w'))
   print('%s written.' % osp.join('cache/prepro', params['output_json']))
 
@@ -307,6 +308,3 @@ if __name__ == '__main__':
 
   # call main
   main(params)
-
-
-
