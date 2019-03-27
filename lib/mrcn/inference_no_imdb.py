@@ -86,6 +86,7 @@ class Inference:
     # Load model
     model = osp.join(mrcn_dir, 'output/%s/%s/%s/%s_mask_rcnn_iter_%s.pth' % \
       (self.net_name, get_imdb_name(self.imdb_name)['TRAIN_IMDB'], self.tag, self.net_name, self.iters))
+    print(model)
     assert osp.isfile(model), model
     net.load_state_dict(torch.load(model))
     print('pretrained-model loaded from [%s].' % model)
