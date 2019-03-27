@@ -46,9 +46,11 @@ def main(args):
   loader = Loader(data_json, data_h5)
   images = loader.images
 
+  args.dataset = args.dataset.replace('endovis2017', 'endovis_2017')
   # load mrcn model
   mrcn = inference.Inference(args)
   imdb = mrcn.imdb
+  args.dataset = args.dataset.replace('endovis_2017', 'endovis2017')
 
   # feats_h5
   feats_dir = osp.join('cache/feats', dataset_splitBy, 'mrcn', '%s_%s_%s' % (args.net_name, args.imdb_name, args.tag))
@@ -87,5 +89,3 @@ if __name__ == '__main__':
 
   args = parser.parse_args()
   main(args)
-
-
