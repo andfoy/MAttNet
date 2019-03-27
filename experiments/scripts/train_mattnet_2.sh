@@ -19,4 +19,4 @@ CUDA_VISIBLE_DEVICES=${GPU_ID} python -u ./tools/train.py \
     --splitBy ${SPLITBY} \
     --max_iters 30000 \
     --with_st 1 \
-    --id ${ID} >> /output/train_group1.log
+    --id ${ID} >> /output/train_group2.log 2>&1
