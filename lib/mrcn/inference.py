@@ -59,7 +59,7 @@ class Inference:
 
     # Config
     cfg_file = osp.join(mrcn_dir, 'experiments/cfgs/%s.yml' % self.net_name)
-    cfg_list = ['ANCHOR_SCALES', [4,8,16,32], 'ANCHOR_RATIOS', [0.5,1,2]]
+    cfg_list = ['ANCHOR_SCALES', [4,8,16,32], 'ANCHOR_RATIOS', [0.5,1,2], 'DATA_DIR', '/input']
     if cfg_file is not None: cfg_from_file(cfg_file)
     if cfg_list is not None: cfg_from_list(cfg_list)
     print('Using config:')
