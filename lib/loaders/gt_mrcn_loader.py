@@ -1,5 +1,5 @@
 """
-data_json has 
+data_json has
 0. refs:       [{ref_id, ann_id, box, image_id, split, category_id, sent_ids, att_wds}]
 1. images:     [{image_id, ref_ids, file_name, width, height, h5_id}]
 2. anns:       [{ann_id, category_id, image_id, box, h5_id}]
@@ -136,14 +136,14 @@ class GtMRCNLoader(Loader):
     for image_id in batch_image_ids:
       ref_ids = self.Images[image_id]['ref_ids']
       batch_ref_ids += self.expand_list(ref_ids, seq_per_ref)
-      
+
       # fetch head and im_info
       head, im_info = self.image_to_head(image_id)
       head = Variable(torch.from_numpy(head).cuda())
 
-      # get image related ids 
+      # get image related ids
       image_pos_ann_ids, image_neg_ann_ids = [], []
-      
+
       for ref_id in ref_ids:
         ref_ann_id = self.Refs[ref_id]['ann_id']
 
@@ -161,21 +161,21 @@ class GtMRCNLoader(Loader):
         batch_neg_sent_ids += neg_sent_ids
 
       # fetch feats
-      pos_ann_boxes = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in image_pos_ann_ids])) 
+      pos_ann_boxes = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in image_pos_ann_ids]))
       image_pos_pool5, image_pos_fc7 = self.fetch_grid_feats(pos_ann_boxes, head, im_info)  # (num_pos, k, 7, 7)
       batch_pos_pool5 += [image_pos_pool5]
-      batch_pos_fc7   += [image_pos_fc7] 
+      batch_pos_fc7   += [image_pos_fc7]
       neg_ann_boxes = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in image_neg_ann_ids]))
       image_neg_pool5, image_neg_fc7 = self.fetch_grid_feats(neg_ann_boxes, head, im_info)  # (num_neg, k, 7, 7)
       batch_neg_pool5 += [image_neg_pool5]
       batch_neg_fc7   += [image_neg_fc7]
 
-      # add to batch 
+      # add to batch
       batch_pos_ann_ids += image_pos_ann_ids
       batch_neg_ann_ids += image_neg_ann_ids
 
     # get feats and labels
-    pos_fc7   = torch.cat(batch_pos_fc7, 0); pos_fc7.detach() 
+    pos_fc7   = torch.cat(batch_pos_fc7, 0); pos_fc7.detach()
     pos_pool5 = torch.cat(batch_pos_pool5, 0); pos_pool5.detach()
     pos_lfeats = self.compute_lfeats(batch_pos_ann_ids)
     pos_dif_lfeats = self.compute_dif_lfeats(batch_pos_ann_ids)
@@ -206,7 +206,7 @@ class GtMRCNLoader(Loader):
     neg_labels = Variable(torch.from_numpy(neg_labels).long().cuda())
 
     # chunk pos_labels and neg_labels using max_len
-    max_len = max((pos_labels != 0).sum(1).max().data[0], 
+    max_len = max((pos_labels != 0).sum(1).max().data[0],
                   (neg_labels != 0).sum(1).max().data[0])
     pos_labels = pos_labels[:, :max_len]
     neg_labels = neg_labels[:, :max_len]
@@ -228,7 +228,7 @@ class GtMRCNLoader(Loader):
     data['neg_cxt_ann_ids'] = neg_cxt_ann_ids
     data['att_labels'] = att_labels  # (num_pos_ann_ids, num_atts)
     data['select_ixs'] = select_ixs  # variable size
-    data['bounds'] = {'it_pos_now': self.iterators[split], 'it_max': max_index, 'wrapped': wrapped} 
+    data['bounds'] = {'it_pos_now': self.iterators[split], 'it_max': max_index, 'wrapped': wrapped}
     return data
 
   def sample_neg_ids(self, ann_id, seq_per_ref, sample_ratio):
@@ -283,10 +283,10 @@ class GtMRCNLoader(Loader):
         return -1
       else:
         return 1
-    image = self.Images[ref_ann['image_id']]        
-        
+    image = self.Images[ref_ann['image_id']]
+
     ann_ids = list(image['ann_ids'])  # copy in case the raw list is changed
-    ann_ids = sorted(ann_ids, cmp=compare)
+    ann_ids = sorted(ann_ids, key=compare)
 
     st_ref_ids, st_ann_ids, dt_ref_ids, dt_ann_ids = [], [], [], []
     for ann_id in ann_ids:
@@ -334,9 +334,9 @@ class GtMRCNLoader(Loader):
 
 
   def fetch_grid_feats(self, boxes, net_conv, im_info):
-    """returns 
+    """returns
     - pool5 (n, 1024, 7, 7)
-    - fc7   (n, 2048, 7, 7) 
+    - fc7   (n, 2048, 7, 7)
     """
     pool5, fc7 = self.mrcn.box_to_spatial_fc7(net_conv, im_info, boxes)
     return pool5, fc7
@@ -349,14 +349,14 @@ class GtMRCNLoader(Loader):
       image = self.Images[ann['image_id']]
       x, y, w, h = ann['box']
       ih, iw = image['height'], image['width']
-      lfeats[ix] = np.array([[x/iw, y/ih, (x+w-1)/iw, (y+h-1)/ih, w*h/(iw*ih)]], np.float32) 
+      lfeats[ix] = np.array([[x/iw, y/ih, (x+w-1)/iw, (y+h-1)/ih, w*h/(iw*ih)]], np.float32)
     return lfeats
 
   def compute_dif_lfeats(self, ann_ids, topK=5):
     # return ndarray float32 (#ann_ids, 5*topK)
     dif_lfeats = np.zeros((len(ann_ids), 5*topK), dtype=np.float32)
     for i, ref_ann_id in enumerate(ann_ids):
-      # reference box 
+      # reference box
       rbox = self.Anns[ref_ann_id]['box']
       rcx, rcy, rw, rh = rbox[0]+rbox[2]/2, rbox[1]+rbox[3]/2, rbox[2], rbox[3]
       # candidate boxes
@@ -371,14 +371,14 @@ class GtMRCNLoader(Loader):
 
   def fetch_cxt_feats(self, ann_ids, opt):
     """
-    Return 
+    Return
     - cxt_feats  : ndarray (#ann_ids, topK, fc7_dim)
-    - cxt_lfeats : ndarray (#ann_ids, topK, 5) 
+    - cxt_lfeats : ndarray (#ann_ids, topK, 5)
     - cxt_ann_ids: [[ann_id]] of size (#ann_ids, topK), padded with -1
     Note we only use neighbouring "different"(+"same") objects for computing context objects, zeros padded.
     """
     topK = opt['num_cxt']
-    cxt_feats = np.zeros((len(ann_ids), topK, self.fc7_dim), dtype=np.float32)  
+    cxt_feats = np.zeros((len(ann_ids), topK, self.fc7_dim), dtype=np.float32)
     cxt_lfeats = np.zeros((len(ann_ids), topK, 5), dtype=np.float32)
     cxt_ann_ids = [[-1 for _ in range(topK)] for _ in range(len(ann_ids))] # (#ann_ids, topK)
     for i, ref_ann_id in enumerate(ann_ids):
@@ -460,12 +460,12 @@ class GtMRCNLoader(Loader):
 
     # fetch head and im_info
     head, im_info = self.image_to_head(image_id)
-    head = Variable(torch.from_numpy(head).cuda()) 
+    head = Variable(torch.from_numpy(head).cuda())
 
     # fetch ann_ids owning attributes
     ref_ids = image['ref_ids']
     ann_ids = [self.Refs[ref_id]['ann_id'] for ref_id in ref_ids]
-    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids])) 
+    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids]))
     pool5, fc7 = self.fetch_grid_feats(ann_boxes, head, im_info)  # (#ann_ids, k, 7, 7)
     lfeats     = self.compute_lfeats(ann_ids)
     dif_lfeats = self.compute_dif_lfeats(ann_ids)
@@ -495,7 +495,7 @@ class GtMRCNLoader(Loader):
 
     # fetch feats
     ann_ids = image['ann_ids']
-    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids])) 
+    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids]))
     pool5, fc7 = self.fetch_grid_feats(ann_boxes, head, im_info) # (#ann_ids, k, 7, 7)
     lfeats     = self.compute_lfeats(ann_ids)
     dif_lfeats = self.compute_dif_lfeats(ann_ids)
@@ -522,7 +522,7 @@ class GtMRCNLoader(Loader):
 
 
   def getTestBatch(self, split, opt):
-    # Fetch feats according to the image_split_ix 
+    # Fetch feats according to the image_split_ix
     # current image
     wrapped = False
     split_ix = self.split_ix[split]
@@ -542,7 +542,7 @@ class GtMRCNLoader(Loader):
 
     # fetch feats
     ann_ids = image['ann_ids']
-    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids])) 
+    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids]))
     pool5, fc7 = self.fetch_grid_feats(ann_boxes, head, im_info) # (#ann_ids, k, 7, 7)
     lfeats     = self.compute_lfeats(ann_ids)
     dif_lfeats = self.compute_dif_lfeats(ann_ids)
@@ -587,7 +587,7 @@ class GtMRCNLoader(Loader):
 
     # fetch feats
     ann_ids = image['ann_ids']
-    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids])) 
+    ann_boxes  = xywh_to_xyxy(np.vstack([self.Anns[ann_id]['box'] for ann_id in ann_ids]))
     pool5, fc7 = self.fetch_grid_feats(ann_boxes, head, im_info) # (#ann_ids, k, 7, 7)
     lfeats     = self.compute_lfeats(ann_ids)
     dif_lfeats = self.compute_dif_lfeats(ann_ids)
@@ -627,4 +627,3 @@ class GtMRCNLoader(Loader):
                       'cxt_fc7': cxt_fc7, 'cxt_lfeats': cxt_lfeats}
     data['labels'] = labels
     return data
-
