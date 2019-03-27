@@ -65,7 +65,7 @@ class Inference:
     pprint.pprint(cfg)
 
     # Load network
-    self.num_classes = 81  # hard code this
+    self.num_classes = 8  # hard code this
     self.net = self.load_net()
 
   def load_net(self):
