@@ -37,8 +37,9 @@ def main(args):
   elif 'clef' in dataset_splitBy:
     IMAGE_DIR = 'data/images/saiapr_tc-12'
   else:
-    print('No image directory prepared for ', args.dataset)
-    sys.exit(0)
+    IMAGE_DIR = f'/input/data_endovis2017_instances_cropped/{args.splitBy}/images'
+    # print('No image directory prepared for ', args.dataset)
+    # sys.exit(0)
 
   # load dataset
   data_json = osp.join('cache/prepro', dataset_splitBy, 'data.json')
