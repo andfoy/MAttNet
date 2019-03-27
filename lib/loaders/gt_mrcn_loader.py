@@ -26,6 +26,7 @@ from loaders.loader import Loader
 
 import torch
 from torch.autograd import Variable
+from functools import cmp_to_key
 
 # mrcn path
 from mrcn import inference_no_imdb
@@ -286,7 +287,7 @@ class GtMRCNLoader(Loader):
     image = self.Images[ref_ann['image_id']]
 
     ann_ids = list(image['ann_ids'])  # copy in case the raw list is changed
-    ann_ids = sorted(ann_ids, key=compare)
+    ann_ids = sorted(ann_ids, key=cmp_to_key(compare))
 
     st_ref_ids, st_ann_ids, dt_ref_ids, dt_ann_ids = [], [], [], []
     for ann_id in ann_ids:
