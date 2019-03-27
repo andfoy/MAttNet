@@ -148,11 +148,13 @@ def prepare_json(refer, sentToFinal, ref_to_att_wds, params):
   images = []
   h5_id = 0
   for image_id, image in refer.Imgs.items():
+    if image_id not in refer.imgToRefs:
+      continue
     width = image['width']
     height = image['height']
     file_name = image['file_name']
-    ref_ids = [ref['ref_id'] for ref in refer.imgToRefs[image_id] if image_id in refer.imgToRefs]
-    ann_ids = [ann['id'] for ann in refer.imgToAnns[image_id] if image_id in refer.imgToAnns]
+    ref_ids = [ref['ref_id'] for ref in refer.imgToRefs[image_id]]
+    ann_ids = [ann['id'] for ann in refer.imgToAnns[image_id]]
     images += [ {'image_id': image_id, 'height': height, 'width': width, 'file_name': file_name, 'ref_ids': ref_ids, 'ann_ids': ann_ids, 'h5_id': h5_id} ]
     h5_id += 1
   print('There are in all %d images.' % h5_id)
@@ -161,7 +163,9 @@ def prepare_json(refer, sentToFinal, ref_to_att_wds, params):
   anns = []
   h5_id = 0
   for image_id in refer.Imgs:
-    ann_ids = [ann['id'] for ann in refer.imgToAnns[image_id] if image_id in refer.imgToAnns]
+    if image_id not in refer.imgToAnns:
+      continue
+    ann_ids = [ann['id'] for ann in refer.imgToAnns[image_id]]
     for ann_id in ann_ids:
       ann = refer.Anns[ann_id]
       anns += [{'ann_id': ann_id, 'category_id': ann['category_id'], 'box': ann['bbox'], 'image_id': image_id, 'h5_id': h5_id}]
